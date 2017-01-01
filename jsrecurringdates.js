@@ -44,7 +44,16 @@ var JSRecurringDates = (function(){
          this.setMonth(tmpDateMonth);
 
          return totalDaysInMonth;
-     }
+     };
+
+     /***
+     * @brief difference in days between 2 dates
+     * @param compareWith date to compare difference with
+     * @return int with ABSOLUTE numbers of days btween two dates
+     */
+     Date.prototype.getDaysDifference = function(compareWith){
+         return Math.round(Math.abs((this.getTime() - compareWith.getTime())/(86400000))); // 86400000 = 24*60*60*1000
+     };
 
     /**
     * @brief It adds x months to a given date ensuring correct corner cases.
@@ -85,6 +94,8 @@ var JSRecurringDates = (function(){
         _strWeekDay[5] = "Friday";
         _strWeekDay[6] = "Saturday";
 
+        var _ONE_DAY_MILLISECS = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+
         this.setWeekDaysStrValues = function(weekDays){
             for(var i=0; i < weekDays.length; ++i){
                 _strWeekDay[i] = weekDays[i];
@@ -94,6 +105,9 @@ var JSRecurringDates = (function(){
         this.getDayOfWeekStr = function(date){
             return _strWeekDay[date.getDay()];
         };
+
+
+
 
         /**
         * @brief Create a list of recurring dates on every "everyXMonths" keeping
@@ -109,7 +123,7 @@ var JSRecurringDates = (function(){
             var day = dateBegin.getDate();
 
             while(tmpDate <= dateEnd){
-                dates.push(tmpDate);
+                dates.push(new Date(tmpDate));
                 tmpDate.addMonthsByDay(everyXMonths, day);
             }
 
@@ -138,7 +152,7 @@ var JSRecurringDates = (function(){
             var prevYear = 0;
             var prevMonth = 0;
             while(tmpDate <= dateEnd){
-                dates.push(tmpDate);
+                dates.push(new Date(tmpDate));
 
                 prevYear = tmpDate.getFullYear();
                 prevMonth = tmpDate.getMonth();
@@ -156,6 +170,58 @@ var JSRecurringDates = (function(){
             return dates;
         };
 
+        /**
+        * @brief it creates a list of dates with recurring events every "x" weeks
+        * @param every
+        * @param dateBegin
+        * @param dateEnd
+        * @param weekDays {0:Sun, 1:Mon, ...} Dictionary with days of the week in which dates should repeat
+        * @return dates list
+        */
+        this.getDatesByDays = function(every, dateBegin, dateEnd){
+            var dates = [];
+            var tmpDate = dateBegin;
+            var found = false;
+            while(tmpDate <= dateEnd){
+                dates.push(new Date(tmpDate));
+                tmpDate.setDate(tmpDate.getDate()+every);
+            }
+            return dates;
+        };
+
+        /**
+        * @brief it creates a list of dates with recurring events every "x" weeks
+        * @param every
+        * @param dateBegin
+        * @param dateEnd
+        * @param weekDays {0:Sun, 1:Mon, ...} Dictionary with days of the week in which dates should repeat
+        * @return dates list
+        */
+        this.getDatesByWeekDays = function(every, dateBegin, dateEnd, weekdays){
+            var dates = [];
+            var tmpDate = dateBegin;
+            var found = false;
+            while(tmpDate <= dateEnd){
+                for(var i=0; i < 7; ++i){
+                    if(tmpDate <= dateEnd){
+                        if(tmpDate.getDay() in weekdays){
+                            found = true;
+                            dates.push(new Date(tmpDate));
+                        }
+                        tmpDate.setDate(tmpDate.getDate()+1);
+                        //console.log(tmpDate + " in "+ tmpDate.getDay())
+
+                    }else{
+                        break;
+                    }
+
+                }
+                if(found == true && every > 1){
+                    tmpDate.setDate(tmpDate.getDate()+(every-1)*7);
+                }
+            }
+            return dates;
+        };
     };
     return JSRecurringDates;
 })();

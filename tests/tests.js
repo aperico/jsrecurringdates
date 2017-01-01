@@ -52,6 +52,7 @@ QUnit.test( "TestgetDatesMonthly", function( assert ) {
 	var aDateEnd = new Date(2017,11,31);
 
 	var dates = jsRd.getDatesMonthly(1, aDateBegin, aDateEnd);
+	console.log(dates)
 	assert.equal(dates.length,13);
 
 });
@@ -70,6 +71,7 @@ QUnit.test( "TestaddMonthsByWeekDay", function( assert ) {
 	aDateEnd = new Date(2017,11,01);
 
 	dates = jsRd.getDatesMonthlyByWeekDay(1, aDateBegin, aDateEnd);
+	console.log(dates)
 	assert.equal(dates.length,12);
 
 });
@@ -102,14 +104,10 @@ QUnit.test( "addMonthsByDay", function( assert ) {
 
 	assert.equal(aDateBegin.getTime(), aDateExpected.getTime());
 
-
-
 	aDateBegin = new Date(2016,11,1);
 	aDateExpected = new Date(2017,0,1);
 
 	aDateBegin.addMonthsByDay(1);
-	console.log(aDateBegin)
-	console.log(aDateExpected)
 	assert.equal(aDateBegin.getTime(), aDateExpected.getTime());
 
 
@@ -123,10 +121,7 @@ QUnit.test( "addMonthsByDay", function( assert ) {
 	aDateExpected = new Date(2017,1,28);
 
 	aDateBegin.addMonthsByDay(2);
-	console.log(aDateBegin)
-	console.log(aDateExpected)
 	assert.equal(aDateBegin.getTime(), aDateExpected.getTime());
-
 
 
 	aDateBegin = new Date(2016,11,31);
@@ -135,7 +130,53 @@ QUnit.test( "addMonthsByDay", function( assert ) {
 	aDateBegin.addMonthsByDay(2,31);
 	assert.equal(aDateBegin.getTime(), aDateExpected.getTime());
 
-	var rd = new JSRecurringDates();
-	console.log(Date.prototype);
+
+
+});
+
+
+QUnit.test( "getDatesByWeekDays", function( assert ) {
+	var aDateBegin = new Date(2016,10,1);
+	var aDateEnd = new Date(2016,11,1);
+
+	var weekDays = {1:true, 4:true}; // 2x per week
+	var dates = jsRd.getDatesByWeekDays(1, aDateBegin, aDateEnd, weekDays);
+	assert.equal(dates.length, 9);
+
+
+	aDateBegin = new Date(2016,10,1);
+	aDateEnd = new Date(2016,11,1);
+	weekDays = {1:true}; // 2x per week
+	dates = jsRd.getDatesByWeekDays(1, aDateBegin, aDateEnd, weekDays);
+	assert.equal(dates.length, 4);
+
+	aDateBegin = new Date(2016,10,1);
+	aDateEnd = new Date(2016,11,1);
+	weekDays = {0:true, 1:true, 2:true, 3:true, 4:true, 5:true, 6:true}; // 7x per week
+	dates = jsRd.getDatesByWeekDays(1, aDateBegin, aDateEnd, weekDays);
+	assert.equal(dates.length, 31);
+
+	aDateBegin = new Date(2016,10,1);
+	aDateEnd = new Date(2016,11,1);
+	weekDays = {0:true, 1:true, 2:true, 3:true, 4:true, 5:true, 6:true}; // 7x per week
+	dates = jsRd.getDatesByWeekDays(2, aDateBegin, aDateEnd, weekDays);
+	assert.equal(dates.length, 17);
+
+});
+
+QUnit.test( "getDatesByDays", function( assert ) {
+	var aDateBegin = new Date(2016,10,1);
+	var aDateEnd = new Date(2016,11,1);
+
+	var dates = jsRd.getDatesByDays(1, aDateBegin, aDateEnd);
+
+	assert.equal(dates.length, 31);
+
+	aDateBegin = new Date(2016,10,1);
+	aDateEnd = new Date(2016,11,1);
+	dates = jsRd.getDatesByDays(2, aDateBegin, aDateEnd);
+	console.log(dates)
+	assert.equal(dates.length, 16);
+
 
 });
