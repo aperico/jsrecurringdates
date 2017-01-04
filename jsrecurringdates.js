@@ -116,7 +116,6 @@ var JSRecurringDates = (function(){
         * @param dateBegin starting from this date
         * @param dateEnd beginning from this date
         */
-        this.getDatesMonthly = function(everyXMonths, dateBegin, dateEnd){
             var dates = [];
             var tmpDate = dateBegin;
             var daysInMonthVal;
