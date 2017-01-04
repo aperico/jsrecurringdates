@@ -106,24 +106,32 @@ var JSRecurringDates = (function(){
             return _strWeekDay[date.getDay()];
         };
 
-
-
-
         /**
         * @brief Create a list of recurring dates on every "everyXMonths" keeping
         * day of the month fixed
         * @param everyXMonths a new date every # of months
         * @param dateBegin starting from this date
-        * @param dateEnd beginning from this date
+        * @param dateEnd beginning from this date (mutex with maxOccurrences)
+        * @param maxOccurrences maxOccurrences (mutex with dateEnd)
         */
+        this.getDatesMonthly = function(everyXMonths, dateBegin, dateEnd, maxOccurrences=undefined){
             var dates = [];
             var tmpDate = dateBegin;
             var daysInMonthVal;
             var day = dateBegin.getDate();
 
-            while(tmpDate <= dateEnd){
-                dates.push(new Date(tmpDate));
-                tmpDate.addMonthsByDay(everyXMonths, day);
+            if(maxOccurrences != undefined && maxOccurrences > 0){
+                var i=0;
+                while(i < maxOccurrences){
+                    dates.push(new Date(tmpDate));
+                    tmpDate.addMonthsByDay(everyXMonths, day);
+                    i++;
+                }
+            }else{
+                while(tmpDate <= dateEnd){
+                    dates.push(new Date(tmpDate));
+                    tmpDate.addMonthsByDay(everyXMonths, day);
+                }
             }
 
             return dates;
@@ -134,10 +142,11 @@ var JSRecurringDates = (function(){
         * day of the week fixed
         * @param everyXMonths a new date every # of months
         * @param dateBegin starting from this date
-        * @param dateEnd beginning from this date
+        * @param dateEnd beginning from this date (mutex with maxOccurrences)
+        * @param maxOccurrences (mutex with dateEnd)
         * @note It ensures that only 1 entry per month is created
         */
-        this.getDatesMonthlyByWeekDay = function(every, dateBegin, dateEnd){
+        this.getDatesMonthlyByWeekDay = function(every, dateBegin, dateEnd, maxOccurrences=undefined){
 
             var dates = [];
             var tmpDate = dateBegin;
@@ -150,7 +159,18 @@ var JSRecurringDates = (function(){
 
             var prevYear = 0;
             var prevMonth = 0;
-            while(tmpDate <= dateEnd){
+
+            var loop = false;
+            var j=0;
+            do{
+                if(maxOccurrences != undefined && maxOccurrences > 0){
+                    loop = j++ < maxOccurrences;
+                }else{
+                    loop = tmpDate <= dateEnd;
+                }
+
+                if(!loop) break;
+
                 dates.push(new Date(tmpDate));
 
                 prevYear = tmpDate.getFullYear();
@@ -158,14 +178,15 @@ var JSRecurringDates = (function(){
 
                 i=0;
                 while(
-                        (i < ((4*7)*every)) ||
+                        (i < (7*4*every)) ||
                         // ensuring that only 1 date per month is created
                         (tmpDate.getFullYear() == prevYear && tmpDate.getMonth() == prevMonth)
                 ){
                     tmpDate.addDays(7);
                     i += 7;
                 }
-            }
+            }while(loop);
+
             return dates;
         };
 
@@ -177,14 +198,24 @@ var JSRecurringDates = (function(){
         * @param weekDays {0:Sun, 1:Mon, ...} Dictionary with days of the week in which dates should repeat
         * @return dates list
         */
-        this.getDatesByDays = function(every, dateBegin, dateEnd){
+        this.getDatesByDays = function(every, dateBegin, dateEnd, maxOccurrences=undefined){
             var dates = [];
             var tmpDate = dateBegin;
             var found = false;
-            while(tmpDate <= dateEnd){
+            var loop = false;
+            var i=0;
+            do{
+
+                if(maxOccurrences != undefined && maxOccurrences > 0){
+                    loop = ++i < maxOccurrences;
+                }else{
+                    loop = tmpDate < dateEnd;
+                }
+
                 dates.push(new Date(tmpDate));
                 tmpDate.setDate(tmpDate.getDate()+every);
-            }
+
+            }while(loop);
             return dates;
         };
 
@@ -193,23 +224,35 @@ var JSRecurringDates = (function(){
         * @param every
         * @param dateBegin
         * @param dateEnd
-        * @param weekDays {0:Sun, 1:Mon, ...} Dictionary with days of the week in which dates should repeat
+        * @param weekDays [0:true, Sun, 1: false, ...] array with days of the week in which dates should repeat
         * @return dates list
         */
-        this.getDatesByWeekDays = function(every, dateBegin, dateEnd, weekdays){
+        this.getDatesByWeekDays = function(every, dateBegin, dateEnd, weekdays, maxOccurrences=undefined){
             var dates = [];
             var tmpDate = dateBegin;
             var found = false;
-            while(tmpDate <= dateEnd){
+            var loop = false;
+            var j = 0;
+            do{
+                if(maxOccurrences != undefined && maxOccurrences > 0){
+                    loop = tmpDate <= dateEnd;
+                }
+
                 for(var i=0; i < 7; ++i){
-                    if(tmpDate <= dateEnd){
-                        if(tmpDate.getDay() in weekdays){
+                    if(maxOccurrences || tmpDate <= dateEnd){
+                        if(weekdays[i]==true && tmpDate.getDay() in weekdays){
+
+                            if(maxOccurrences){
+                                loop = j++ < maxOccurrences;
+                            }
+
+                            if(!loop) break;
                             found = true;
                             dates.push(new Date(tmpDate));
+
                         }
                         tmpDate.setDate(tmpDate.getDate()+1);
                         //console.log(tmpDate + " in "+ tmpDate.getDay())
-
                     }else{
                         break;
                     }
@@ -218,9 +261,13 @@ var JSRecurringDates = (function(){
                 if(found == true && every > 1){
                     tmpDate.setDate(tmpDate.getDate()+(every-1)*7);
                 }
-            }
+
+            }while(loop);
+
             return dates;
         };
     };
+
+
     return JSRecurringDates;
 })();

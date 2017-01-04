@@ -55,24 +55,35 @@ QUnit.test( "TestgetDatesMonthly", function( assert ) {
 	console.log(dates)
 	assert.equal(dates.length,13);
 
+	dates = jsRd.getDatesMonthly(1, aDateBegin, undefined, 5);
+	console.log(dates)
+	assert.equal(dates.length,5);
+
 });
 
 
-QUnit.test( "TestaddMonthsByWeekDay", function( assert ) {
+QUnit.test( "TestgetDatesMonthlyByWeekDay", function( assert ) {
 	var aDateBegin = new Date(2016,11,31);
 	var aDateEnd = new Date(2017,11,31);
 
 	dates = jsRd.getDatesMonthlyByWeekDay(1, aDateBegin, aDateEnd);
 	console.log(dates);
-	console.log(dates.length);
 	assert.equal(dates.length,13);
 
 	aDateBegin = new Date(2016,11,01);
 	aDateEnd = new Date(2017,11,01);
 
 	dates = jsRd.getDatesMonthlyByWeekDay(1, aDateBegin, aDateEnd);
-	console.log(dates)
 	assert.equal(dates.length,12);
+
+
+	aDateBegin = new Date(2016,11,01);
+	dates = jsRd.getDatesMonthlyByWeekDay(1, aDateBegin, undefined, 5);
+	assert.equal(dates.length,5);
+
+	aDateBegin = new Date(2016,11,01);
+	dates = jsRd.getDatesMonthlyByWeekDay(1, aDateBegin, undefined, 100);
+	assert.equal(dates.length,100);
 
 });
 
@@ -141,6 +152,7 @@ QUnit.test( "getDatesByWeekDays", function( assert ) {
 
 	var weekDays = {1:true, 4:true}; // 2x per week
 	var dates = jsRd.getDatesByWeekDays(1, aDateBegin, aDateEnd, weekDays);
+	console.log(dates)
 	assert.equal(dates.length, 9);
 
 
@@ -164,12 +176,39 @@ QUnit.test( "getDatesByWeekDays", function( assert ) {
 
 });
 
+QUnit.test( "getDatesByWeekDaysMaxOccurences", function( assert ) {
+	var aDateBegin = new Date(2016,10,1);
+
+	var weekDays = {1:true, 4:true}; // 2x per week
+	var dates = jsRd.getDatesByWeekDays(1, aDateBegin, undefined, weekDays, 9);
+	console.log(dates)
+	assert.equal(dates.length, 9);
+
+
+	aDateBegin = new Date(2016,10,1);
+	weekDays = {1:true}; // 2x per week
+	dates = jsRd.getDatesByWeekDays(1, aDateBegin, undefined, weekDays, 4);
+	assert.equal(dates.length, 4);
+
+	aDateBegin = new Date(2016,10,1);
+	weekDays = {0:true, 1:true, 2:true, 3:true, 4:true, 5:true, 6:true}; // 7x per week
+	dates = jsRd.getDatesByWeekDays(1, aDateBegin, undefined, weekDays, 31);
+	assert.equal(dates.length, 31);
+
+	aDateBegin = new Date(2016,10,1);
+	aDateEnd = new Date(2016,11,1);
+	weekDays = {0:true, 1:true, 2:true, 3:true, 4:true, 5:true, 6:true}; // 7x per week
+	dates = jsRd.getDatesByWeekDays(2, aDateBegin, undefined, weekDays, 17);
+	assert.equal(dates.length, 17);
+
+});
+
 QUnit.test( "getDatesByDays", function( assert ) {
 	var aDateBegin = new Date(2016,10,1);
 	var aDateEnd = new Date(2016,11,1);
 
 	var dates = jsRd.getDatesByDays(1, aDateBegin, aDateEnd);
-
+	console.log(dates)
 	assert.equal(dates.length, 31);
 
 	aDateBegin = new Date(2016,10,1);
@@ -178,5 +217,9 @@ QUnit.test( "getDatesByDays", function( assert ) {
 	console.log(dates)
 	assert.equal(dates.length, 16);
 
+	aDateBegin = new Date(2016,10,1);
+	dates = jsRd.getDatesByDays(2, aDateBegin, undefined, 16);
+	console.log(dates)
+	assert.equal(dates.length, 16);
 
 });
